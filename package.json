@@ -1,0 +1,12 @@
+{
+  "name": "fokusku-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FokusKu MVP frontend mockup",
+  "scripts": {
+    "start": "serve -s . -l $PORT"
+  },
+  "dependencies": {
+    "serve": "^14.2.6"
+  }
+}
