@@ -10,17 +10,17 @@
 <script>
 tailwind.config = { theme: { extend: {
   fontFamily: { head: ['"Bricolage Grotesque"','sans-serif'], body: ['Inter','sans-serif'] },
-  colors: { deep:'#3B0F26', mint:'#F472B6', paper:'#FFF3F8', amber2:'#F2A541', coral:'#E8590C' }
+  colors: { deep:'#0B1F4B', mint:'#60A5FA', paper:'#F1F5FB', amber2:'#F2A541', coral:'#E8590C' }
 }}};
 </script>
 <style>
   body { font-family: Inter, sans-serif; }
   .ring { transition: stroke-dashoffset .9s linear; }
-  .tab-active { background:#3B0F26; color:#fff; }
+  .tab-active { background:#0B1F4B; color:#fff; }
   @keyframes pop { from { transform: scale(.96); opacity:0 } to { transform:scale(1); opacity:1 } }
   .pop { animation: pop .18s ease-out; }
   @media (prefers-reduced-motion: reduce) { .pop, .ring { animation:none; transition:none; } }
-  :focus-visible { outline:3px solid #F472B6; outline-offset:2px; }
+  :focus-visible { outline:3px solid #60A5FA; outline-offset:2px; }
 </style>
 </head>
 <body class="bg-paper text-deep min-h-screen">
@@ -34,7 +34,7 @@ tailwind.config = { theme: { extend: {
     </div>
     <nav class="flex flex-col gap-1" id="sideNav"></nav>
     <div class="mt-auto text-sm text-white/70 leading-relaxed">
-      <i class="fa-solid fa-shield-halved text-pink-300 mr-1"></i>
+      <i class="fa-solid fa-shield-halved text-sky-300 mr-1"></i>
       Video kamera diproses di perangkatmu dan tidak pernah disimpan atau dikirim ke server.
     </div>
   </aside>
@@ -54,10 +54,28 @@ tailwind.config = { theme: { extend: {
     <section id="tab-session" class="grid lg:grid-cols-5 gap-6">
       <div class="lg:col-span-3 bg-white rounded-3xl p-6 border border-deep/10">
         <div class="flex flex-col items-center">
+        <div class="flex items-center gap-3 mb-2 w-full">
+          <img id="mascotImg" src="mascot.png" alt="Maskot FokusKu" class="hidden w-24 h-24 shrink-0 object-contain"
+               onload="this.classList.remove('hidden'); document.getElementById('mascot').classList.add('hidden')"
+               onerror="this.classList.add('hidden')">
+          <svg id="mascot" viewBox="0 0 120 120" class="w-24 h-24 shrink-0" role="img" aria-label="Maskot kelinci FokusKu" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M34 52 C26 28 30 6 42 6 C54 6 56 30 52 50" fill="#fff" stroke="#0B1F4B" stroke-width="4"/>
+            <path d="M82 50 C90 40 104 38 108 50 C112 62 98 68 86 60" fill="#fff" stroke="#0B1F4B" stroke-width="4"/>
+            <ellipse cx="60" cy="76" rx="40" ry="33" fill="#fff" stroke="#0B1F4B" stroke-width="4"/>
+            <circle cx="38" cy="84" r="6" fill="#BFD6FA" opacity=".9"/>
+            <circle cx="82" cy="84" r="6" fill="#BFD6FA" opacity=".9"/>
+            <g id="mEyes" fill="#0B1F4B"><circle cx="46" cy="74" r="4"/><circle cx="74" cy="74" r="4"/></g>
+            <ellipse cx="60" cy="80" rx="3" ry="2.2" fill="#0B1F4B"/>
+            <path id="mMouth" d="M53 86 Q60 93 67 86" fill="none" stroke="#0B1F4B" stroke-width="3.5"/>
+            <path id="mDrop" class="hidden" d="M100 50 q6 9 0 13 q-6 -4 0 -13z" fill="#60A5FA"/>
+            <path id="mStar" class="hidden" d="M102 34 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5z" fill="#F2A541"/>
+          </svg>
+          <p id="mascotMsg" class="text-sm bg-paper border border-deep/10 rounded-2xl rounded-bl-sm px-4 py-3 flex-1">Halo! Pilih durasi, lalu kita mulai belajar bareng.</p>
+        </div>
           <div class="relative w-64 h-64">
             <svg viewBox="0 0 200 200" class="w-full h-full -rotate-90">
-              <circle cx="100" cy="100" r="88" fill="none" stroke="#FADCE8" stroke-width="12"/>
-              <circle id="ring" class="ring" cx="100" cy="100" r="88" fill="none" stroke="#F472B6" stroke-width="12" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="0"/>
+              <circle cx="100" cy="100" r="88" fill="none" stroke="#DCE6F7" stroke-width="12"/>
+              <circle id="ring" class="ring" cx="100" cy="100" r="88" fill="none" stroke="#60A5FA" stroke-width="12" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="0"/>
             </svg>
             <div class="absolute inset-0 grid place-items-center text-center">
               <div>
@@ -78,7 +96,7 @@ tailwind.config = { theme: { extend: {
       <div class="lg:col-span-2 flex flex-col gap-6">
         <div class="bg-deep rounded-3xl p-4 text-white">
           <div class="flex items-center justify-between mb-3 text-sm">
-            <span><i class="fa-solid fa-video mr-2 text-pink-300"></i>Kamera</span>
+            <span><i class="fa-solid fa-video mr-2 text-sky-300"></i>Kamera</span>
             <span id="camBadge" class="px-2 py-0.5 rounded-full bg-white/10 text-white/70">Mati</span>
           </div>
           <div id="camBox" class="relative overflow-hidden aspect-video rounded-2xl bg-black/30 grid place-items-center text-white/60 text-sm text-center">
@@ -93,7 +111,7 @@ tailwind.config = { theme: { extend: {
           </div>
           <div class="bg-white rounded-2xl p-4 border border-deep/10">
             <div class="text-sm text-deep/60">Skor fokus</div>
-            <div id="focusScore" class="font-head text-4xl font-extrabold text-pink-600">100%</div>
+            <div id="focusScore" class="font-head text-4xl font-extrabold text-blue-600">100%</div>
           </div>
         </div>
         <div class="bg-white rounded-2xl p-4 border border-deep/10 flex-1">
@@ -193,6 +211,27 @@ function showToast(msg, type='info') {
   setTimeout(() => t.remove(), 3500);
 }
 
+
+/* ---------- Maskot ---------- */
+const MOODS = {
+  idle:  { eyes:'dot',   mouth:'M53 86 Q60 93 67 86', msg:'Halo! Pilih durasi, lalu kita mulai belajar bareng.' },
+  focus: { eyes:'dot',   mouth:'M53 86 Q60 93 67 86', msg:'Aku temenin ya. Fokus dulu, nanti istirahat.', star:true },
+  pause: { eyes:'dot',   mouth:'M54 88 L66 88',       msg:'Jeda dulu nggak apa-apa. Lanjut kalau sudah siap.' },
+  oops:  { eyes:'dot',   mouth:'M56 88 Q60 82 64 88 Q60 94 56 88', msg:'Eh, fokusmu sempat terganggu. Yuk balik lagi.', drop:true },
+  done:  { eyes:'happy', mouth:'M51 85 Q60 98 69 85', msg:'Sesi selesai! Kamu hebat, lihat ringkasannya ya.', star:true }
+};
+let moodTimer = null;
+function setMascot(mood, msg) {
+  const m = MOODS[mood] || MOODS.idle;
+  $('mEyes').innerHTML = m.eyes === 'happy'
+    ? '<path d="M40 75 Q46 67 52 75 M68 75 Q74 67 80 75" fill="none" stroke="#0B1F4B" stroke-width="3.5"/>'
+    : '<circle cx="46" cy="74" r="4"/><circle cx="74" cy="74" r="4"/>';
+  $('mMouth').setAttribute('d', m.mouth);
+  $('mDrop').classList.toggle('hidden', !m.drop);
+  $('mStar').classList.toggle('hidden', !m.star);
+  $('mascotMsg').textContent = msg || m.msg;
+}
+
 /* ---------- Navigasi ---------- */
 function renderNav(active) {
   $('sideNav').innerHTML = TABS.map(t => `
@@ -258,6 +297,7 @@ function beginSession() {
   $('btnStart').classList.add('hidden'); $('btnPause').classList.remove('hidden'); $('btnStop').classList.remove('hidden');
   $('stateLabel').textContent = 'Sedang fokus';
   renderDurations(); updateStats();
+  setMascot('focus');
   showToast('Sesi dimulai. Selamat belajar!', 'ok');
   timer = setInterval(tick, 1000);
 }
@@ -271,6 +311,7 @@ function togglePause() {
   paused = !paused;
   $('btnPause').innerHTML = paused ? '<i class="fa-solid fa-play mr-2"></i>Lanjut' : '<i class="fa-solid fa-pause mr-2"></i>Jeda';
   $('stateLabel').textContent = paused ? 'Dijeda' : 'Sedang fokus';
+  setMascot(paused ? 'pause' : 'focus');
 }
 function simulateDistraction() {
   if (!running) { showToast('Mulai sesi dulu untuk mencoba deteksi distraksi.', 'info'); return; }
@@ -281,6 +322,9 @@ function simulateDistraction() {
   $('distLog').innerHTML = distLog.join('');
   updateStats();
   showToast('Fokus terganggu: ' + msg + '. Yuk kembali belajar.', 'warn');
+  setMascot('oops');
+  clearTimeout(moodTimer);
+  moodTimer = setTimeout(() => { if (running) setMascot(paused ? 'pause' : 'focus'); }, 3000);
 }
 function stopSession(auto=false) {
   clearInterval(timer);
@@ -297,6 +341,8 @@ function stopSession(auto=false) {
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
   $('cam').srcObject = null; $('cam').classList.add('hidden');
   $('camMsg').textContent = 'Kamera dimatikan. Tidak ada video yang disimpan.'; $('camMsg').classList.remove('hidden');
+  clearTimeout(moodTimer);
+  if (auto) setMascot('done'); else setMascot('idle', 'Sesi diakhiri. Mau mulai lagi kapan saja ya.');
   showToast(`${auto?'Sesi selesai':'Sesi diakhiri'}: ${minutes} menit, ${distractions} distraksi, skor ${score}%.`, 'ok');
   setTimeout(() => go('summary'), 900);
 }
@@ -305,7 +351,7 @@ function stopSession(auto=false) {
 function renderTasks() {
   $('taskList').innerHTML = tasks.length ? tasks.map(t => {
     const d = daysLeft(t.due);
-    const badge = t.done ? '<span class="text-pink-600 font-semibold">Selesai</span>'
+    const badge = t.done ? '<span class="text-blue-600 font-semibold">Selesai</span>'
       : d < 0 ? '<span class="text-coral font-semibold">Terlambat</span>'
       : d <= 2 ? `<span class="text-coral font-semibold">${d} hari lagi</span>`
       : `<span class="text-deep/60">${d} hari lagi</span>`;
@@ -388,7 +434,7 @@ function renderSummary() {
   const cards = [
     ['Total fokus', totalMin + ' mnt', 'text-deep'],
     ['Distraksi', totalDist, 'text-coral'],
-    ['Rata-rata skor', avg + '%', 'text-pink-600'],
+    ['Rata-rata skor', avg + '%', 'text-blue-600'],
     ['Tugas tersisa', pending, 'text-amber2']
   ];
   $('sumCards').innerHTML = cards.map(c => `<div class="bg-white rounded-2xl p-4 border border-deep/10"><div class="text-sm text-deep/60">${c[0]}</div><div class="font-head text-3xl font-extrabold ${c[2]}">${c[1]}</div></div>`).join('');
