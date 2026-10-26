@@ -1,84 +1,413 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FokusKu — Focus & Productivity</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FokusKu – Belajar fokus, jadwal tertata</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
-tailwind.config={theme:{extend:{colors:{ink:"#20243A",muted:"#858BA3",primary:"#6C63FF","primary-dark":"#5148E5",soft:"#EEEDFF"},boxShadow:{soft:"0 12px 32px rgba(37,42,78,.07)"}}}};
+tailwind.config = { theme: { extend: {
+  fontFamily: { head: ['"Bricolage Grotesque"','sans-serif'], body: ['Inter','sans-serif'] },
+  colors: { deep:'#3B0F26', mint:'#F472B6', paper:'#FFF3F8', amber2:'#F2A541', coral:'#E8590C' }
+}}};
 </script>
+<style>
+  body { font-family: Inter, sans-serif; }
+  .ring { transition: stroke-dashoffset .9s linear; }
+  .tab-active { background:#3B0F26; color:#fff; }
+  @keyframes pop { from { transform: scale(.96); opacity:0 } to { transform:scale(1); opacity:1 } }
+  .pop { animation: pop .18s ease-out; }
+  @media (prefers-reduced-motion: reduce) { .pop, .ring { animation:none; transition:none; } }
+  :focus-visible { outline:3px solid #F472B6; outline-offset:2px; }
+</style>
 </head>
-<body class="min-h-screen bg-[#F6F7FB] text-ink antialiased">
-<div id="toast" class="fixed bottom-6 left-1/2 z-50 hidden -translate-x-1/2 rounded-xl bg-[#252744] px-5 py-3 text-sm text-white shadow-lg"></div>
-<div class="flex min-h-screen flex-col md:flex-row">
-<aside class="fixed bottom-0 z-40 w-full border-t border-slate-100 bg-white/95 p-2 backdrop-blur md:sticky md:top-0 md:h-screen md:w-60 md:border-r md:border-t-0 md:bg-white md:p-5">
-<div class="hidden items-center gap-3 px-2 md:flex"><div class="grid h-10 w-10 place-items-center rounded-xl bg-primary text-white shadow-lg shadow-primary/25"><i data-lucide="sparkles"></i></div><span class="text-xl font-extrabold">FokusKu</span></div>
-<nav class="mt-8 flex justify-around gap-1 md:block md:space-y-1">
-<button data-target="dashboard" class="nav-btn flex flex-1 items-center justify-center gap-3 rounded-xl bg-soft px-3 py-3 text-xs font-bold text-primary-dark md:justify-start"><i data-lucide="layout-dashboard"></i><span class="hidden md:inline">Dashboard</span></button>
-<button data-target="tasks" class="nav-btn flex flex-1 items-center justify-center gap-3 rounded-xl px-3 py-3 text-xs font-bold text-slate-500 hover:bg-soft md:justify-start"><i data-lucide="list-checks"></i><span class="hidden md:inline">Daftar Tugas</span></button>
-<button data-target="focus" class="nav-btn flex flex-1 items-center justify-center gap-3 rounded-xl px-3 py-3 text-xs font-bold text-slate-500 hover:bg-soft md:justify-start"><i data-lucide="timer"></i><span class="hidden md:inline">Mode Fokus</span></button>
-<button data-target="stats" class="nav-btn flex flex-1 items-center justify-center gap-3 rounded-xl px-3 py-3 text-xs font-bold text-slate-500 hover:bg-soft md:justify-start"><i data-lucide="bar-chart-3"></i><span class="hidden md:inline">Statistik</span></button>
-</nav>
-<div class="absolute bottom-20 left-5 right-5 hidden rounded-2xl border border-primary/10 bg-[#F8F7FF] p-4 md:block"><div class="text-2xl">🌱</div><p class="mt-2 text-sm font-extrabold">Pelan-pelan, ya!</p><p class="mt-1 text-[11px] leading-relaxed text-muted">Kemajuan kecil tetap berarti. Fokus pada satu hal dalam satu waktu.</p><button id="motivateBtn" class="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-[11px] font-bold text-white">Butuh motivasi?</button></div>
-</aside>
+<body class="bg-paper text-deep min-h-screen">
 
-<main id="dashboard" class="mx-auto w-full max-w-7xl flex-1 px-4 pb-24 pt-6 sm:px-6 md:px-8 md:pb-10 lg:px-10">
-<header class="mb-8 flex items-center justify-between gap-4"><div><p id="todayLabel" class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted"></p><h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Ruang fokusmu ✨</h1></div><div class="flex items-center gap-3"><button id="soundBtn" class="grid h-10 w-10 place-items-center rounded-xl border border-slate-100 bg-white text-slate-500 shadow-sm"><i data-lucide="volume-2"></i></button><div class="flex items-center gap-2"><div class="grid h-10 w-10 place-items-center rounded-xl bg-orange-100 text-sm font-extrabold text-orange-700">V</div><div class="hidden sm:block"><p class="text-xs font-bold">Halo, Valeska!</p><p class="text-[10px] text-muted">Mahasiswa</p></div></div></div></header>
+<div class="md:flex min-h-screen">
+  <!-- Sidebar (laptop) -->
+  <aside class="hidden md:flex md:w-64 flex-col bg-deep text-white p-6 gap-8 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-mint text-deep grid place-items-center"><i class="fa-solid fa-bullseye"></i></div>
+      <span class="font-head text-2xl font-bold">FokusKu</span>
+    </div>
+    <nav class="flex flex-col gap-1" id="sideNav"></nav>
+    <div class="mt-auto text-sm text-white/70 leading-relaxed">
+      <i class="fa-solid fa-shield-halved text-pink-300 mr-1"></i>
+      Video kamera diproses di perangkatmu dan tidak pernah disimpan atau dikirim ke server.
+    </div>
+  </aside>
 
-<section class="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><h2 class="text-base font-bold">Hari ini mau menyelesaikan apa?</h2><p class="mt-1 text-xs text-muted">Susun prioritasmu, lalu mulai dari langkah kecil.</p></div><div class="w-fit rounded-xl border border-slate-100 bg-white px-3 py-2 text-xs text-muted shadow-sm"><i data-lucide="calendar-days" class="mr-1 inline"></i><span id="datePill"></span></div></section>
+  <main class="flex-1 p-4 md:p-10 pb-28 md:pb-10 max-w-5xl w-full mx-auto">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 id="pageTitle" class="font-head text-3xl md:text-4xl font-extrabold"></h1>
+        <p id="pageSub" class="text-deep/60 mt-1"></p>
+      </div>
+      <button onclick="showToast('Pengingat aktif: 2 tugas jatuh tempo minggu ini','info')" class="relative w-11 h-11 rounded-full bg-white border border-deep/10 grid place-items-center" aria-label="Pengingat">
+        <i class="fa-regular fa-bell"></i><span class="absolute top-2 right-2.5 w-2.5 h-2.5 bg-coral rounded-full"></span>
+      </button>
+    </header>
 
-<div class="grid gap-5 lg:grid-cols-[1.35fr_.9fr]">
-<section id="focus" class="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-[#938DFF] p-5 text-white shadow-xl shadow-primary/10 sm:p-7">
-<div class="mb-5 flex items-start justify-between"><div><h2 class="font-bold">Waktunya fokus</h2><p class="mt-1 text-[11px] text-white/75">Satu hal dalam satu waktu.</p></div><span class="rounded-lg bg-white/15 px-2.5 py-1.5 text-[9px] font-extrabold">POMODORO</span></div>
-<div class="grid items-center gap-7 md:grid-cols-2">
-<div id="timerCircle" class="mx-auto grid aspect-square w-52 place-items-center rounded-full p-2" style="background:conic-gradient(#fff 0deg,#ffffff42 0deg)"><div class="grid h-full w-full place-items-center rounded-full bg-primary"><div class="text-center"><div id="timer" class="text-4xl font-extrabold tabular-nums sm:text-5xl">25:00</div><div class="mt-1 text-[10px] text-white/70">MENIT FOKUS</div></div></div></div>
-<div class="text-center md:text-left"><h3 class="text-xl font-extrabold">Kerjakan dengan tenang.</h3><p class="mt-2 text-xs leading-6 text-white/75">Jauhkan distraksi dan beri perhatian penuh pada tugas yang sedang kamu kerjakan.</p><div class="mt-4 flex flex-wrap justify-center gap-2 md:justify-start"><button id="startBtn" class="rounded-xl bg-white px-4 py-2.5 text-xs font-extrabold text-primary-dark">▶ Mulai fokus</button><button id="resetBtn" class="rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-bold text-white">↻ Reset</button></div></div>
-</div></section>
+    <!-- ===== TAB 1: SESI ===== -->
+    <section id="tab-session" class="grid lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-3 bg-white rounded-3xl p-6 border border-deep/10">
+        <div class="flex flex-col items-center">
+          <div class="relative w-64 h-64">
+            <svg viewBox="0 0 200 200" class="w-full h-full -rotate-90">
+              <circle cx="100" cy="100" r="88" fill="none" stroke="#FADCE8" stroke-width="12"/>
+              <circle id="ring" class="ring" cx="100" cy="100" r="88" fill="none" stroke="#F472B6" stroke-width="12" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="0"/>
+            </svg>
+            <div class="absolute inset-0 grid place-items-center text-center">
+              <div>
+                <div id="clock" class="font-head text-5xl font-extrabold tabular-nums">25:00</div>
+                <div id="stateLabel" class="text-sm text-deep/60 mt-1">Siap memulai</div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2 mt-4" id="durations"></div>
+          <div class="flex gap-3 mt-6">
+            <button id="btnStart" onclick="startFlow()" class="px-6 py-3 rounded-full bg-deep text-white font-semibold hover:bg-deep/90"><i class="fa-solid fa-play mr-2"></i>Mulai sesi</button>
+            <button id="btnPause" onclick="togglePause()" class="hidden px-5 py-3 rounded-full bg-amber2/20 text-deep font-semibold"><i class="fa-solid fa-pause mr-2"></i>Jeda</button>
+            <button id="btnStop" onclick="stopSession()" class="hidden px-5 py-3 rounded-full bg-coral/10 text-coral font-semibold"><i class="fa-solid fa-stop mr-2"></i>Akhiri</button>
+          </div>
+        </div>
+      </div>
 
-<section id="tasks" class="rounded-3xl border border-slate-100 bg-white p-5 shadow-soft sm:p-6">
-<div class="mb-5 flex items-start justify-between"><div><h2 class="text-sm font-extrabold">Target hari ini</h2><p class="mt-1 text-[11px] text-muted">Sedikit demi sedikit jadi bukit.</p></div><span id="taskCountTag" class="rounded-lg bg-soft px-2.5 py-1.5 text-[9px] font-extrabold text-primary-dark">0 / 4</span></div>
-<div id="taskList" class="space-y-2.5">
-<label class="task flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 p-3"><input type="checkbox" class="task-check h-4 w-4 accent-[#6C63FF]"><span class="h-2 w-2 rounded-full bg-red-400"></span><span class="min-w-0 flex-1"><b class="block text-xs">Menyelesaikan tugas RPL</b><small class="mt-1 block text-[10px] text-muted">Prioritas tinggi · Kuliah</small></span></label>
-<label class="task flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 p-3"><input type="checkbox" class="task-check h-4 w-4 accent-[#6C63FF]"><span class="h-2 w-2 rounded-full bg-amber-400"></span><span class="min-w-0 flex-1"><b class="block text-xs">Review materi pemrograman</b><small class="mt-1 block text-[10px] text-muted">Prioritas sedang · Belajar</small></span></label>
-<label class="task flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 p-3"><input type="checkbox" class="task-check h-4 w-4 accent-[#6C63FF]"><span class="h-2 w-2 rounded-full bg-emerald-400"></span><span class="min-w-0 flex-1"><b class="block text-xs">Merapikan catatan kuliah</b><small class="mt-1 block text-[10px] text-muted">Prioritas rendah · Personal</small></span></label>
-<label class="task flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 p-3"><input type="checkbox" class="task-check h-4 w-4 accent-[#6C63FF]"><span class="h-2 w-2 rounded-full bg-amber-400"></span><span class="min-w-0 flex-1"><b class="block text-xs">Istirahat tanpa membuka tugas</b><small class="mt-1 block text-[10px] text-muted">Prioritas sedang · Self-care</small></span></label>
+      <div class="lg:col-span-2 flex flex-col gap-6">
+        <div class="bg-deep rounded-3xl p-4 text-white">
+          <div class="flex items-center justify-between mb-3 text-sm">
+            <span><i class="fa-solid fa-video mr-2 text-pink-300"></i>Kamera</span>
+            <span id="camBadge" class="px-2 py-0.5 rounded-full bg-white/10 text-white/70">Mati</span>
+          </div>
+          <div id="camBox" class="relative overflow-hidden aspect-video rounded-2xl bg-black/30 grid place-items-center text-white/60 text-sm text-center">
+            <video id="cam" autoplay playsinline muted class="hidden absolute inset-0 w-full h-full object-cover -scale-x-100"></video>
+            <span id="camMsg" class="px-4">Kamera menyala otomatis saat sesi dimulai.</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl p-4 border border-deep/10">
+            <div class="text-sm text-deep/60">Distraksi</div>
+            <div id="distCount" class="font-head text-4xl font-extrabold text-coral">0</div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 border border-deep/10">
+            <div class="text-sm text-deep/60">Skor fokus</div>
+            <div id="focusScore" class="font-head text-4xl font-extrabold text-pink-600">100%</div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-deep/10 flex-1">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-head font-bold">Catatan distraksi</h2>
+            <button onclick="simulateDistraction()" class="text-sm text-deep/60 underline">Simulasikan</button>
+          </div>
+          <ul id="distLog" class="text-sm space-y-2 max-h-40 overflow-auto"><li class="text-deep/50">Belum ada distraksi. Mulai sesi untuk memantau.</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB 2: TUGAS ===== -->
+    <section id="tab-tasks" class="hidden">
+      <div class="flex gap-3 mb-6">
+        <button onclick="openModal('task')" class="px-5 py-3 rounded-full bg-deep text-white font-semibold"><i class="fa-solid fa-plus mr-2"></i>Tambah tugas</button>
+        <button onclick="openModal('exam')" class="px-5 py-3 rounded-full bg-white border border-deep/20 font-semibold"><i class="fa-solid fa-calendar-plus mr-2"></i>Tambah ujian</button>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h2 class="font-head text-xl font-bold mb-3">Tugas</h2>
+          <ul id="taskList" class="space-y-3"></ul>
+        </div>
+        <div>
+          <h2 class="font-head text-xl font-bold mb-3">Jadwal ujian</h2>
+          <ul id="examList" class="space-y-3"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB 3: RINGKASAN ===== -->
+    <section id="tab-summary" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="sumCards"></div>
+      <div class="grid lg:grid-cols-5 gap-6">
+        <div class="lg:col-span-3 bg-white rounded-3xl p-6 border border-deep/10">
+          <h2 class="font-head text-xl font-bold mb-1">Menit fokus minggu ini</h2>
+          <p class="text-sm text-deep/60 mb-4">Sesi yang kamu selesaikan ikut menambah grafik ini.</p>
+          <div id="chart" class="flex items-end gap-3 h-48"></div>
+        </div>
+        <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-deep/10">
+          <h2 class="font-head text-xl font-bold mb-3">Sesi terakhir</h2>
+          <ul id="sessionHistory" class="space-y-3 text-sm"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
-<form id="addTaskForm" class="mt-3 flex gap-2"><input id="newTask" required maxlength="80" placeholder="Tambah tugas baru..." class="min-w-0 flex-1 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs outline-none focus:border-primary"><button class="grid h-10 w-10 rounded-xl bg-primary text-lg text-white">+</button></form>
-</section>
+
+<!-- Bottom nav (HP) -->
+<nav id="bottomNav" class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-deep/10 grid grid-cols-3 p-2 z-30"></nav>
+
+<!-- Modal -->
+<div id="modal" class="hidden fixed inset-0 z-40 bg-deep/60 grid place-items-center p-4" onclick="if(event.target===this)closeModal()">
+  <div class="pop bg-white rounded-3xl p-6 w-full max-w-md" role="dialog" aria-modal="true" id="modalBody"></div>
 </div>
 
-<section class="mt-5 grid grid-cols-3 gap-2.5">
-<div class="rounded-2xl border border-slate-100 bg-white p-3 shadow-soft"><div class="text-[10px] text-muted">Waktu fokus</div><strong id="focusMinutes" class="mt-2 block text-lg font-extrabold">0 mnt</strong><small class="text-[9px] text-muted">Durasi sesi selesai</small></div>
-<div class="rounded-2xl border border-slate-100 bg-white p-3 shadow-soft"><div class="text-[10px] text-muted">Tugas selesai</div><strong id="completedTasks" class="mt-2 block text-lg font-extrabold">0</strong><small id="completedCaption" class="text-[9px] text-muted">Dari 4 tugas</small></div>
-<div class="rounded-2xl border border-slate-100 bg-white p-3 shadow-soft"><div class="text-[10px] text-muted">Sesi fokus</div><strong id="sessions" class="mt-2 block text-lg font-extrabold">0</strong><small class="text-[9px] text-muted">Terus bangun kebiasaan</small></div>
-</section>
-
-<div id="stats" class="mt-5 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
-<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-soft"><div class="mb-4 flex justify-between"><div><h2 class="text-sm font-extrabold">Aktivitas fokus</h2><p class="mt-1 text-[11px] text-muted">Gambaran waktu fokus mingguan</p></div><span class="rounded-lg bg-soft px-2 py-1 text-[9px] font-extrabold text-primary-dark">MINGGU INI</span></div>
-<div class="flex h-32 items-end justify-around gap-2">${""}
-<div class="h-[45%] w-5 rounded-t-lg bg-primary/20"></div><div class="h-[70%] w-5 rounded-t-lg bg-primary/20"></div><div class="h-[38%] w-5 rounded-t-lg bg-primary/20"></div><div class="h-[55%] w-5 rounded-t-lg bg-primary"></div><div class="h-[20%] w-5 rounded-t-lg bg-primary/20"></div><div class="h-[12%] w-5 rounded-t-lg bg-primary/20"></div><div class="h-[8%] w-5 rounded-t-lg bg-primary/20"></div></div>
-<div class="mt-2 flex justify-around text-[10px] text-muted"><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span></div></section>
-<section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-soft"><h2 class="text-sm font-extrabold">Jaga keseimbangan 🌿</h2><p class="mt-1 text-[11px] text-muted">Produktif juga perlu istirahat.</p><div class="mt-5 flex items-center gap-4"><div class="grid h-20 w-20 shrink-0 place-items-center rounded-full" style="background:conic-gradient(#60cba1 0 68%,#e6f7ef 68% 100%)"><div class="grid h-14 w-14 place-items-center rounded-full bg-white text-sm font-extrabold">68%</div></div><div><b class="text-xs">Ritme yang sehat</b><p class="mt-1 text-[10px] leading-relaxed text-muted">Ambil jeda saat lelah. Kamu tidak harus menyelesaikan semuanya sekaligus.</p></div></div></section>
-</div>
-</main></div>
+<!-- Toast -->
+<div id="toasts" class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-[calc(100%-2rem)] max-w-sm"></div>
 
 <script>
-lucide.createIcons();
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-let total=1500,remaining=total,running=false,interval=null,sessions=0,minutes=0;
-function toast(msg){const e=$("#toast");e.textContent=msg;e.classList.remove("hidden");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.add("hidden"),2200)}
-function render(){let m=Math.floor(remaining/60),s=remaining%60;$("#timer").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");$("#timerCircle").style.background=`conic-gradient(#fff ${((total-remaining)/total)*360}deg,#ffffff42 0deg)`}
-function stop(){clearInterval(interval);interval=null;running=false}
-$("#startBtn").onclick=()=>{if(running){stop();$("#startBtn").textContent="▶ Lanjutkan";toast("Sesi dijeda.");return}running=true;$("#startBtn").textContent="Ⅱ Jeda";interval=setInterval(()=>{remaining--;render();if(remaining<=0){stop();sessions++;minutes+=25;$("#sessions").textContent=sessions;$("#focusMinutes").textContent=minutes+" mnt";remaining=total;render();$("#startBtn").textContent="▶ Mulai fokus";toast("Sesi fokus selesai! Saatnya istirahat 🎉")}},1000)};
-$("#resetBtn").onclick=()=>{stop();remaining=total;render();$("#startBtn").textContent="▶ Mulai fokus";toast("Timer direset.")};
-function updateTasks(){let ts=$$("#taskList .task"),done=ts.filter(t=>t.querySelector(".task-check").checked).length;ts.forEach(t=>{let c=t.querySelector(".task-check").checked;t.querySelector("b").classList.toggle("line-through",c);t.querySelector("b").classList.toggle("text-slate-400",c)});$("#taskCountTag").textContent=`${done} / ${ts.length}`;$("#completedTasks").textContent=done;$("#completedCaption").textContent=`Dari ${ts.length} tugas`}
-$("#taskList").onchange=updateTasks;
-$("#addTaskForm").onsubmit=e=>{e.preventDefault();let input=$("#newTask"),v=input.value.trim();if(!v)return;let label=document.createElement("label");label.className="task flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 p-3";label.innerHTML=`<input type="checkbox" class="task-check h-4 w-4 accent-[#6C63FF]"><span class="h-2 w-2 rounded-full bg-emerald-400"></span><span class="min-w-0 flex-1"><b class="block text-xs"></b><small class="mt-1 block text-[10px] text-muted">Prioritas rendah · Baru ditambahkan</small></span>`;label.querySelector("b").textContent=v;$("#taskList").append(label);input.value="";updateTasks();toast("Tugas berhasil ditambahkan.")};
-$("#motivateBtn")?.addEventListener("click",()=>toast(["Kamu tidak harus sempurna, cukup mulai. 🌱","Satu langkah kecil tetap sebuah kemajuan. ✨","Fokus pada proses, bukan semuanya sekaligus. 💜"][Math.floor(Math.random()*3)]));
-$("#soundBtn").onclick=()=>toast("Kontrol suara siap dikembangkan pada versi berikutnya.");
-$$(".nav-btn").forEach(b=>b.onclick=()=>{ $$(".nav-btn").forEach(x=>{x.classList.remove("bg-soft","text-primary-dark");x.classList.add("text-slate-500")});b.classList.add("bg-soft","text-primary-dark");b.classList.remove("text-slate-500");document.getElementById(b.dataset.target)?.scrollIntoView({behavior:"smooth"})});
-const now=new Date();$("#todayLabel").textContent=new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now).toUpperCase();$("#datePill").textContent=new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"short",year:"numeric"}).format(now);updateTasks();render();
+/* ---------- Data ---------- */
+const TABS = [
+  { id:'session', label:'Sesi belajar', icon:'fa-bullseye', title:'Sesi belajar', sub:'Pilih durasi, mulai, dan biarkan FokusKu menjaga fokusmu.' },
+  { id:'tasks', label:'Tugas & ujian', icon:'fa-list-check', title:'Tugas & ujian', sub:'Semua tenggat dan jadwal ujianmu di satu tempat.' },
+  { id:'summary', label:'Ringkasan', icon:'fa-chart-simple', title:'Ringkasan fokus', sub:'Lihat bagaimana sesi belajarmu berjalan.' }
+];
+let tasks = [
+  { id:1, name:'Laporan Rekayasa Perangkat Lunak', course:'RPL', due:'2026-10-26', done:false },
+  { id:2, name:'Latihan soal Basis Data', course:'Basis Data', due:'2026-10-28', done:false },
+  { id:3, name:'Ringkasan bab Jaringan Komputer', course:'Jarkom', due:'2026-10-24', done:true }
+];
+let exams = [
+  { id:1, name:'UTS Rekayasa Perangkat Lunak', date:'2026-11-02', time:'09:00' },
+  { id:2, name:'UTS Basis Data', date:'2026-11-04', time:'13:00' }
+];
+let sessions = [
+  { when:'Kemarin', minutes:50, distractions:3 },
+  { when:'2 hari lalu', minutes:25, distractions:1 }
+];
+let week = { Sen:40, Sel:65, Rab:30, Kam:90, Jum:55, Sab:20, Min:0 };
+let nextId = 10;
+
+/* ---------- Util ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short' });
+const daysLeft = d => Math.ceil((new Date(d + 'T00:00:00') - new Date(new Date().toDateString())) / 86400000);
+
+function showToast(msg, type='info') {
+  const colors = { info:'bg-deep text-white', warn:'bg-amber2 text-deep', ok:'bg-mint text-deep', bad:'bg-coral text-white' };
+  const icons = { info:'fa-circle-info', warn:'fa-triangle-exclamation', ok:'fa-circle-check', bad:'fa-circle-exclamation' };
+  const t = document.createElement('div');
+  t.className = `pop ${colors[type]} rounded-2xl px-4 py-3 shadow-lg flex gap-3 items-start text-sm font-medium`;
+  t.setAttribute('role','status');
+  t.innerHTML = `<i class="fa-solid ${icons[type]} mt-0.5"></i><span>${esc(msg)}</span>`;
+  $('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+/* ---------- Navigasi ---------- */
+function renderNav(active) {
+  $('sideNav').innerHTML = TABS.map(t => `
+    <button onclick="go('${t.id}')" class="flex items-center gap-3 px-4 py-3 rounded-xl text-left ${t.id===active?'bg-mint text-deep font-semibold':'text-white/80 hover:bg-white/10'}">
+      <i class="fa-solid ${t.icon} w-5"></i>${t.label}</button>`).join('');
+  $('bottomNav').innerHTML = TABS.map(t => `
+    <button onclick="go('${t.id}')" class="flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${t.id===active?'tab-active':'text-deep/60'}">
+      <i class="fa-solid ${t.icon} text-base"></i>${t.label}</button>`).join('');
+}
+function go(id) {
+  TABS.forEach(t => $('tab-'+t.id).classList.toggle('hidden', t.id !== id));
+  const tab = TABS.find(t => t.id === id);
+  $('pageTitle').textContent = tab.title;
+  $('pageSub').textContent = tab.sub;
+  renderNav(id);
+  if (id === 'tasks') renderTasks();
+  if (id === 'summary') renderSummary();
+}
+
+/* ---------- Sesi belajar ---------- */
+const CIRC = 552.9;
+let total = 25*60, left = total, timer = null, paused = false, running = false;
+let distractions = 0, distLog = [], camOn = false;
+const DIST_TYPES = ['Wajah tidak terdeteksi di kamera', 'Pandangan beralih dari layar cukup lama', 'Kepala menunduk — kemungkinan memegang ponsel', 'Terdeteksi ngobrol dengan orang lain'];
+
+function renderDurations() {
+  $('durations').innerHTML = [15,25,45].map(m => `
+    <button onclick="setDuration(${m})" ${running?'disabled':''} class="px-4 py-1.5 rounded-full text-sm border ${total===m*60?'bg-deep text-white border-deep':'border-deep/20 bg-white'} disabled:opacity-40">${m} menit</button>`).join('');
+}
+function setDuration(m) { if (running) return; total = left = m*60; updateClock(); renderDurations(); }
+function updateClock() {
+  const m = String(Math.floor(left/60)).padStart(2,'0'), s = String(left%60).padStart(2,'0');
+  $('clock').textContent = `${m}:${s}`;
+  $('ring').style.strokeDashoffset = CIRC * (1 - left/total);
+}
+function updateStats() {
+  $('distCount').textContent = distractions;
+  const score = Math.max(0, 100 - distractions*8);
+  $('focusScore').textContent = score + '%';
+}
+let stream = null;
+async function startFlow() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('Browser ini tidak mendukung kamera. Buka lewat HTTPS atau localhost.', 'bad'); return;
+  }
+  $('btnStart').disabled = true;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user' }, audio:false });
+    const v = $('cam'); v.srcObject = stream; v.classList.remove('hidden'); $('camMsg').classList.add('hidden');
+    beginSession();
+  } catch (err) {
+    const msg = err && err.name === 'NotAllowedError'
+      ? 'Izin kamera ditolak. Klik ikon kunci di address bar, izinkan kamera, lalu coba lagi.'
+      : 'Kamera tidak ditemukan atau sedang dipakai aplikasi lain.';
+    showToast(msg, 'bad');
+  }
+  $('btnStart').disabled = false;
+}
+function beginSession() {
+  camOn = true; running = true; paused = false; distractions = 0; distLog = [];
+  $('distLog').innerHTML = '<li class="text-deep/50">Memantau… belum ada distraksi.</li>';
+  $('camBadge').textContent = 'Aktif'; $('camBadge').className = 'px-2 py-0.5 rounded-full bg-mint text-deep font-semibold';
+  $('btnStart').classList.add('hidden'); $('btnPause').classList.remove('hidden'); $('btnStop').classList.remove('hidden');
+  $('stateLabel').textContent = 'Sedang fokus';
+  renderDurations(); updateStats();
+  showToast('Sesi dimulai. Selamat belajar!', 'ok');
+  timer = setInterval(tick, 1000);
+}
+function tick() {
+  if (paused) return;
+  left--; updateClock();
+  if (left > 0 && left % 12 === 0 && Math.random() < 0.6) simulateDistraction();
+  if (left <= 0) { stopSession(true); }
+}
+function togglePause() {
+  paused = !paused;
+  $('btnPause').innerHTML = paused ? '<i class="fa-solid fa-play mr-2"></i>Lanjut' : '<i class="fa-solid fa-pause mr-2"></i>Jeda';
+  $('stateLabel').textContent = paused ? 'Dijeda' : 'Sedang fokus';
+}
+function simulateDistraction() {
+  if (!running) { showToast('Mulai sesi dulu untuk mencoba deteksi distraksi.', 'info'); return; }
+  distractions++;
+  const msg = DIST_TYPES[Math.floor(Math.random()*DIST_TYPES.length)];
+  const elapsed = Math.round((total-left)/60);
+  distLog.unshift(`<li class="flex gap-2"><i class="fa-solid fa-triangle-exclamation text-amber2 mt-0.5"></i><span>${esc(msg)} <span class="text-deep/50">(menit ke-${elapsed})</span></span></li>`);
+  $('distLog').innerHTML = distLog.join('');
+  updateStats();
+  showToast('Fokus terganggu: ' + msg + '. Yuk kembali belajar.', 'warn');
+}
+function stopSession(auto=false) {
+  clearInterval(timer);
+  const minutes = Math.max(1, Math.round((total-left)/60));
+  sessions.unshift({ when:'Baru saja', minutes, distractions });
+  const day = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'][new Date().getDay()];
+  week[day] += minutes;
+  const score = Math.max(0, 100 - distractions*8);
+  running = false; camOn = false; paused = false;
+  left = total; updateClock(); renderDurations();
+  $('btnStart').classList.remove('hidden'); $('btnPause').classList.add('hidden'); $('btnStop').classList.add('hidden');
+  $('stateLabel').textContent = 'Siap memulai';
+  $('camBadge').textContent = 'Mati'; $('camBadge').className = 'px-2 py-0.5 rounded-full bg-white/10 text-white/70';
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  $('cam').srcObject = null; $('cam').classList.add('hidden');
+  $('camMsg').textContent = 'Kamera dimatikan. Tidak ada video yang disimpan.'; $('camMsg').classList.remove('hidden');
+  showToast(`${auto?'Sesi selesai':'Sesi diakhiri'}: ${minutes} menit, ${distractions} distraksi, skor ${score}%.`, 'ok');
+  setTimeout(() => go('summary'), 900);
+}
+
+/* ---------- Tugas & ujian ---------- */
+function renderTasks() {
+  $('taskList').innerHTML = tasks.length ? tasks.map(t => {
+    const d = daysLeft(t.due);
+    const badge = t.done ? '<span class="text-pink-600 font-semibold">Selesai</span>'
+      : d < 0 ? '<span class="text-coral font-semibold">Terlambat</span>'
+      : d <= 2 ? `<span class="text-coral font-semibold">${d} hari lagi</span>`
+      : `<span class="text-deep/60">${d} hari lagi</span>`;
+    return `<li class="bg-white rounded-2xl p-4 border border-deep/10 flex items-center gap-3">
+      <button onclick="toggleTask(${t.id})" aria-label="Tandai selesai" class="w-7 h-7 rounded-full border-2 ${t.done?'bg-mint border-mint text-deep':'border-deep/30'} grid place-items-center shrink-0">${t.done?'<i class="fa-solid fa-check text-xs"></i>':''}</button>
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold ${t.done?'line-through text-deep/40':''} truncate">${esc(t.name)}</div>
+        <div class="text-xs text-deep/60">${esc(t.course)} · ${fmtDate(t.due)} · ${badge}</div>
+      </div>
+      <button onclick="removeItem('task',${t.id})" aria-label="Hapus" class="text-deep/30 hover:text-coral"><i class="fa-regular fa-trash-can"></i></button>
+    </li>`; }).join('') : '<li class="text-deep/50">Belum ada tugas. Tambahkan tugas pertamamu.</li>';
+
+  $('examList').innerHTML = exams.length ? exams.map(e => {
+    const d = daysLeft(e.date);
+    return `<li class="bg-white rounded-2xl p-4 border border-deep/10 flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-deep text-white grid place-items-center shrink-0"><i class="fa-solid fa-file-pen"></i></div>
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold truncate">${esc(e.name)}</div>
+        <div class="text-xs text-deep/60">${fmtDate(e.date)}, ${esc(e.time)} · ${d>=0?d+' hari lagi':'sudah lewat'}</div>
+      </div>
+      <button onclick="removeItem('exam',${e.id})" aria-label="Hapus" class="text-deep/30 hover:text-coral"><i class="fa-regular fa-trash-can"></i></button>
+    </li>`; }).join('') : '<li class="text-deep/50">Belum ada jadwal ujian.</li>';
+}
+function toggleTask(id) {
+  const t = tasks.find(x => x.id === id); t.done = !t.done; renderTasks();
+  if (t.done) showToast('Tugas selesai. Kerja bagus!', 'ok');
+}
+function removeItem(kind, id) {
+  if (kind === 'task') tasks = tasks.filter(t => t.id !== id); else exams = exams.filter(e => e.id !== id);
+  renderTasks(); showToast('Item dihapus.', 'info');
+}
+
+/* ---------- Modal ---------- */
+const inputCls = 'w-full mt-1 px-4 py-3 rounded-xl border border-deep/20 bg-paper';
+function openModal(kind) {
+  let html = '';
+  if (kind === 'camera') html = `
+    <div class="w-14 h-14 rounded-full bg-mint/20 text-deep grid place-items-center text-2xl mb-4"><i class="fa-solid fa-camera"></i></div>
+    <h3 class="font-head text-2xl font-bold mb-2">Izinkan kamera untuk sesi ini?</h3>
+    <p class="text-deep/70 mb-5">Kamera dipakai hanya selama sesi untuk mendeteksi tanda distraksi. Video diproses di perangkatmu dan tidak disimpan atau dikirim ke server.</p>
+    <div class="flex gap-3"><button onclick="grantCamera()" class="flex-1 py-3 rounded-full bg-deep text-white font-semibold">Izinkan dan mulai</button>
+    <button onclick="closeModal()" class="flex-1 py-3 rounded-full border border-deep/20 font-semibold">Batal</button></div>`;
+  if (kind === 'task') html = `
+    <h3 class="font-head text-2xl font-bold mb-4">Tambah tugas</h3>
+    <label class="block mb-3 text-sm font-medium">Nama tugas<input id="f1" class="${inputCls}" placeholder="Mis. Makalah Sistem Operasi"></label>
+    <label class="block mb-3 text-sm font-medium">Mata kuliah<input id="f2" class="${inputCls}" placeholder="Mis. Sistem Operasi"></label>
+    <label class="block mb-5 text-sm font-medium">Tenggat<input id="f3" type="date" class="${inputCls}"></label>
+    <div class="flex gap-3"><button onclick="saveItem('task')" class="flex-1 py-3 rounded-full bg-deep text-white font-semibold">Simpan tugas</button>
+    <button onclick="closeModal()" class="flex-1 py-3 rounded-full border border-deep/20 font-semibold">Batal</button></div>`;
+  if (kind === 'exam') html = `
+    <h3 class="font-head text-2xl font-bold mb-4">Tambah jadwal ujian</h3>
+    <label class="block mb-3 text-sm font-medium">Nama ujian<input id="f1" class="${inputCls}" placeholder="Mis. UAS Sistem Operasi"></label>
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <label class="block text-sm font-medium">Tanggal<input id="f3" type="date" class="${inputCls}"></label>
+      <label class="block text-sm font-medium">Jam<input id="f4" type="time" value="08:00" class="${inputCls}"></label>
+    </div>
+    <div class="flex gap-3"><button onclick="saveItem('exam')" class="flex-1 py-3 rounded-full bg-deep text-white font-semibold">Simpan ujian</button>
+    <button onclick="closeModal()" class="flex-1 py-3 rounded-full border border-deep/20 font-semibold">Batal</button></div>`;
+  $('modalBody').innerHTML = html;
+  $('modal').classList.remove('hidden');
+  const f = $('f1'); if (f) f.focus();
+}
+function closeModal() { $('modal').classList.add('hidden'); }
+function saveItem(kind) {
+  const name = $('f1').value.trim(), date = $('f3').value;
+  if (!name || !date) { showToast('Isi nama dan tanggal terlebih dahulu.', 'bad'); return; }
+  if (kind === 'task') tasks.push({ id:nextId++, name, course:$('f2').value.trim() || 'Umum', due:date, done:false });
+  else exams.push({ id:nextId++, name, date, time:$('f4').value });
+  closeModal(); renderTasks();
+  showToast(kind==='task' ? 'Tugas ditambahkan. Pengingat dijadwalkan.' : 'Ujian ditambahkan. Pengingat dijadwalkan.', 'ok');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ---------- Ringkasan ---------- */
+function renderSummary() {
+  const totalMin = sessions.reduce((a,s) => a + s.minutes, 0);
+  const totalDist = sessions.reduce((a,s) => a + s.distractions, 0);
+  const avg = sessions.length ? Math.round(sessions.reduce((a,s) => a + Math.max(0,100-s.distractions*8), 0)/sessions.length) : 0;
+  const pending = tasks.filter(t => !t.done).length;
+  const cards = [
+    ['Total fokus', totalMin + ' mnt', 'text-deep'],
+    ['Distraksi', totalDist, 'text-coral'],
+    ['Rata-rata skor', avg + '%', 'text-pink-600'],
+    ['Tugas tersisa', pending, 'text-amber2']
+  ];
+  $('sumCards').innerHTML = cards.map(c => `<div class="bg-white rounded-2xl p-4 border border-deep/10"><div class="text-sm text-deep/60">${c[0]}</div><div class="font-head text-3xl font-extrabold ${c[2]}">${c[1]}</div></div>`).join('');
+  const max = Math.max(...Object.values(week), 1);
+  $('chart').innerHTML = Object.entries(week).map(([d,v]) => `
+    <div class="flex-1 flex flex-col items-center justify-end h-full gap-1">
+      <span class="text-xs text-deep/60">${v}</span>
+      <div class="w-full rounded-t-lg ${v?'bg-mint':'bg-deep/10'}" style="height:${Math.max(4, v/max*100)}%"></div>
+      <span class="text-xs">${d}</span></div>`).join('');
+  $('sessionHistory').innerHTML = sessions.slice(0,5).map(s => `
+    <li class="flex items-center justify-between border-b border-deep/10 pb-2">
+      <div><div class="font-semibold">${esc(s.when)}</div><div class="text-deep/60">${s.minutes} menit fokus</div></div>
+      <div class="text-right"><div class="font-semibold">${Math.max(0,100-s.distractions*8)}%</div><div class="text-deep/60">${s.distractions} distraksi</div></div>
+    </li>`).join('');
+}
+
+/* ---------- Init ---------- */
+renderDurations(); updateClock(); updateStats(); go('session');
+setTimeout(() => showToast('Pengingat: "Ringkasan bab Jaringan Komputer" sudah selesai, 2 tugas lain menunggu.', 'info'), 1200);
 </script>
-</body></html>
+</body>
+</html>
